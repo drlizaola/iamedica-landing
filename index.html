@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IA Para Médicos · Dr. Heriberto Lizaola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ocean:    #0a0e1a;
+      --deep:     #0d1528;
+      --card:     #111827;
+      --border:   #1e2d45;
+      --primary:  #1a9e8f;
+      --glow:     #1a9e8f33;
+      --text:     #c8d8f0;
+      --muted:    #556a8a;
+      --white:    #e8f0fe;
+      --amber:    #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ocean);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── CANVAS ── */
+    #bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .45; }
+
+    /* ── LAYOUT ── */
+    .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: #0a0e1acc;
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600; font-size: 17px;
+      color: var(--white); letter-spacing: .02em;
+    }
+    .nav-brand span { color: var(--primary); }
+    .nav-link {
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-link:hover { color: var(--primary); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--glow); border: 1px solid var(--primary)44;
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 12px; color: var(--primary); letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 36px;
+      animation: fadeUp .8s ease both;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 2.5s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-size: clamp(44px, 7vw, 86px);
+      line-height: 1.05; color: var(--white);
+      margin-bottom: 12px;
+      animation: fadeUp .8s .1s ease both;
+    }
+    .hero-title em {
+      font-style: italic; color: var(--primary);
+    }
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: var(--muted); font-weight: 300; font-style: italic;
+      margin-bottom: 48px;
+      animation: fadeUp .8s .2s ease both;
+    }
+    .hero-desc {
+      max-width: 560px; font-size: 15px; color: var(--text);
+      line-height: 1.8; margin-bottom: 56px;
+      animation: fadeUp .8s .3s ease both;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 10px;
+      padding: 14px 32px; font-size: 15px; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: all .2s;
+      animation: fadeUp .8s .4s ease both;
+    }
+    .hero-cta:hover { background: #15857a; transform: translateY(-2px); box-shadow: 0 8px 32px var(--glow); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      margin: 0 auto 80px;
+    }
+
+    /* ── SECTION ── */
+    section { padding: 80px 0; }
+    .section-label {
+      font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600; font-size: clamp(28px, 4vw, 42px);
+      color: var(--white); margin-bottom: 16px; line-height: 1.2;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 15px; line-height: 1.7;
+      max-width: 520px; margin-bottom: 48px;
+    }
+
+    /* ── APPS GRID ── */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: all .25s;
+      text-decoration: none; color: inherit;
+      display: block; position: relative; overflow: hidden;
+    }
+    .app-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--glow) 0%, transparent 60%);
+      opacity: 0; transition: opacity .25s;
+    }
+    .app-card:hover { border-color: var(--primary)66; transform: translateY(-4px); box-shadow: 0 16px 48px #00000060; }
+    .app-card:hover::before { opacity: 1; }
+    .app-card.soon { opacity: .6; cursor: default; }
+    .app-card.soon:hover { transform: none; box-shadow: none; border-color: var(--border); }
+    .app-card.soon:hover::before { opacity: 0; }
+
+    .app-icon { font-size: 32px; margin-bottom: 16px; }
+    .app-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700; font-size: 22px; color: var(--white);
+      margin-bottom: 8px;
+    }
+    .app-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+    .app-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; padding: 4px 12px; border-radius: 100px;
+      font-weight: 500;
+    }
+    .app-tag.live { background: var(--glow); color: var(--primary); border: 1px solid var(--primary)44; }
+    .app-tag.soon-tag { background: #f59e0b11; color: var(--amber); border: 1px solid var(--amber)33; }
+    .app-tag.live::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: var(--primary); animation: pulse 2s infinite;
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+      align-items: center;
+    }
+    @media(max-width:680px){ .about-grid { grid-template-columns: 1fr; } }
+
+    .about-text p { font-size: 15px; color: var(--text); line-height: 1.85; margin-bottom: 16px; }
+    .about-text p:last-child { margin-bottom: 0; }
+    .about-text strong { color: var(--white); font-weight: 500; }
+
+    .about-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; text-align: center;
+    }
+    .about-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #0d6b62);
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; color: #fff; font-weight: 600;
+    }
+    .about-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700; font-size: 20px; color: var(--white); margin-bottom: 4px;
+    }
+    .about-role { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .about-stat {
+      display: flex; justify-content: center; gap: 32px; margin-top: 20px;
+    }
+    .about-stat div { text-align: center; }
+    .about-stat .n {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700; font-size: 28px; color: var(--primary);
+    }
+    .about-stat .l { font-size: 11px; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; color: var(--white); margin-bottom: 8px;
+    }
+    .footer-brand span { color: var(--primary); }
+    .footer-copy { font-size: 12px; color: var(--muted); }
+
+    /* ── GLASS LINE ── */
+    .glass-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<nav>
+  <div class="nav-brand">IA Para <span>Médicos</span></div>
+  <a href="https://evidenciaflash.iamedica.mx" class="nav-link">EvidenciaFlash MD →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="hero-badge">Plataforma de Salud Digital · México</div>
+    <h1 class="hero-title">Inteligencia Artificial<br/>para la <em>Medicina Clínica</em></h1>
+    <p class="hero-subtitle">Dr. Heriberto Lizaola · IA Para Médicos</p>
+    <p class="hero-desc">Un ecosistema de herramientas digitales diseñadas para el médico mexicano: evidencia clínica sintetizada, seguridad digital y tecnología al servicio del paciente.</p>
+    <a href="https://evidenciaflash.iamedica.mx" class="hero-cta">
+      Explorar EvidenciaFlash MD ⚡
+    </a>
+  </div>
+</div>
+
+<div class="glass-line"></div>
+
+<!-- APPS -->
+<section id="apps">
+  <div class="wrap">
+    <div class="section-label">Plataformas</div>
+    <h2 class="section-title">Suite de Aplicaciones Médicas</h2>
+    <p class="section-sub">Cada herramienta nace de una necesidad clínica real, construida con los más altos estándares de evidencia y experiencia de usuario.</p>
+
+    <div class="apps-grid">
+
+      <a href="https://evidenciaflash.iamedica.mx" class="app-card">
+        <div class="app-icon">⚡</div>
+        <div class="app-name">EvidenciaFlash MD</div>
+        <div class="app-desc">Cápsulas clínicas de alta densidad informativa generadas por IA a partir de guías y consensos internacionales. Diagnóstico y tratamiento en segundos.</div>
+        <span class="app-tag live">En vivo</span>
+      </a>
+
+      <div class="app-card soon">
+        <div class="app-icon">🔐</div>
+        <div class="app-name">Seguridad Digital MD</div>
+        <div class="app-desc">Diagnóstico de vulnerabilidades en seguridad digital para profesionales de la salud. Protege tus datos clínicos y los de tus pacientes.</div>
+        <span class="app-tag soon-tag">Próximamente</span>
+      </div>
+
+      <div class="app-card soon">
+        <div class="app-icon">📊</div>
+        <div class="app-name">Calculadoras Clínicas</div>
+        <div class="app-desc">Scores validados internacionalmente: APACHE II, SOFA, Bishop, Wells y más de 50 herramientas de decisión clínica rápida.</div>
+        <span class="app-tag soon-tag">Próximamente</span>
+      </div>
+
+      <div class="app-card soon">
+        <div class="app-icon">🩺</div>
+        <div class="app-name">Notas Clínicas IA</div>
+        <div class="app-desc">Asistente para redacción de notas médicas estructuradas con terminología normalizada y cumplimiento normativo mexicano.</div>
+        <span class="app-tag soon-tag">Próximamente</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="glass-line"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-label">El Proyecto</div>
+        <h2 class="section-title">Tecnología con propósito clínico</h2>
+        <p>IA Para Médicos nació de una convicción: <strong>la inteligencia artificial debe servir al médico, no reemplazarlo</strong>. Cada herramienta está diseñada para reducir la carga cognitiva y amplificar la capacidad de decisión clínica.</p>
+        <p>Construido desde México, para el médico latinoamericano. Con rigor académico, evidencia actualizada y tecnología de vanguardia accesible desde cualquier dispositivo.</p>
+        <p>Todas las plataformas siguen los estándares de la <strong>NOM-024-SSA3</strong> y los principios de la <strong>LFPDPPP</strong> para la protección de datos en salud.</p>
+      </div>
+      <div>
+        <div class="about-card">
+          <div class="about-avatar">HL</div>
+          <div class="about-name">Dr. Heriberto Lizaola</div>
+          <div class="about-role">Médico · Desarrollador · Innovador en Salud Digital</div>
+          <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+          <div class="about-stat">
+            <div><div class="n">4+</div><div class="l">Apps en desarrollo</div></div>
+            <div><div class="n">MX</div><div class="l">Basado en México</div></div>
+            <div><div class="n">IA</div><div class="l">Powered by Claude</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">IA Para <span>Médicos</span> · Dr. Heriberto Lizaola</div>
+  <div class="footer-copy">© 2025 · iamedica.mx · Todos los derechos reservados</div>
+</footer>
+
+<script>
+// ── PARTICLE CANVAS ──
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  const resize = () => {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', resize);
+  resize();
+
+  const rand = (a, b) => Math.random() * (b - a) + a;
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x  = rand(0, W);
+      this.y  = rand(0, H);
+      this.r  = rand(0.5, 2.2);
+      this.vx = rand(-0.12, 0.12);
+      this.vy = rand(-0.06, -0.18);
+      this.a  = rand(0.1, 0.5);
+      this.life = rand(200, 600);
+      this.age  = 0;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.age++;
+      if (this.age > this.life || this.y < -10) this.reset();
+    }
+    draw() {
+      const t = this.age / this.life;
+      const alpha = this.a * (t < .1 ? t / .1 : t > .8 ? (1 - t) / .2 : 1);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(26,158,143,${alpha})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+  const loop = () => {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(loop);
+  };
+  loop();
+});
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.app-card, .about-card, .about-text').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(32px)';
+  el.style.transition = 'opacity .6s ease, transform .6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
